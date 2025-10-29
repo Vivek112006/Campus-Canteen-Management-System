@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Canteen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        :root {
+            --primary-color: #FF4D4D; /* Orange-Red for vibrancy */
+            --secondary-color: #FF6B6B; /* Lighter Orange-Red for accent */
+            --text-color: #e0e0e0; /* Light grey for readability on dark */
+            --bg-color: #0f0f0f; /* Near black for deep contrast */
+            --header-bg: rgba(20, 20, 20, 0.9); /* Slightly transparent dark */
+            --footer-bg: #1a0f0a; /* Very dark for footer */
+            --footer-text: #bdbdbd; /* Lighter grey for footer text */
+            --card-bg: rgba(30, 30, 30, 0.8); /* Slightly transparent dark card */
+            --card-shadow: 0 8px 20px rgba(0,0,0,0.5); /* Deeper shadow for 3D feel */
+            --border-color: #333333; /* Darker border */
+            --glow-color: rgba(255, 107, 53, 0.6); /* Primary color glow */
+            --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+            --modal-content-bg-dark: #2a2a2a;
+            --input-bg-dark: #1f1f1f;
+            --input-border-dark: #444;
+            --placeholder-text-dark: #777;
+            --placeholder-text-light: #999;
+        }
+
+        .light-mode {
+            --primary-color: #FF4D4D;
+            --secondary-color: #FF6B6B;
+            --text-color: #333333;
+            --bg-color: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --footer-bg: #f8f9fa;
+            --footer-text: #666666;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --border-color: #e0e0e0;
+            --glow-color: rgba(255, 107, 53, 0.2);
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-content-bg-dark: #ffffff; /* Light mode modal bg */
+            --input-bg-dark: #f0f0f0; /* Light mode input bg */
+            --input-border-dark: #ccc; /* Light mode input border */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.8;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--header-bg);
+            backdrop-filter: blur(8px);
+            box-shadow: var(--card-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 0;
+            transition: background-color 0.5s ease-in-out, backdrop-filter 0.3s ease;
+        }
+        header.header-scrolled {
+            backdrop-filter: blur(12px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px var(--glow-color);
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            object-fit: contain;
+            border-radius: 50%; /* Make college logo round */
+        }
+
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links li { position: relative; }
+        .nav-links a {
+            text-decoration: none; color: var(--text-color); font-weight: 600;
+            font-size: 1rem; position: relative; padding: 8px 0;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--secondary-color); text-shadow: 0 0 15px var(--secondary-color);
+        }
+        .nav-links a::after {
+            content: ''; position: absolute; width: 0; height: 3px;
+            bottom: -5px; left: 50%; transform: translateX(-50%);
+            background-color: var(--secondary-color);
+            transition: width 0.3s ease; border-radius: 2px;
+        }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+        .mobile-menu-btn {
+            display: none; background: none; border: none; font-size: 1.8rem;
+            cursor: pointer; color: var(--text-color); transition: color 0.3s ease;
+        }
+        .mobile-menu-btn:hover { color: var(--primary-color); }
+
+        .auth-buttons { display: flex; align-items: center; gap: 15px; }
+        .header-btn, .theme-toggle {
+            padding: 0.6rem 1.2rem; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: 600; transition: all 0.4s ease; text-transform: uppercase;
+            letter-spacing: 0.5px; box-shadow: var(--card-shadow); font-size: 0.9rem;
+        }
+        .header-btn {
+            background-color: var(--primary-color); color: white; position: relative; overflow: hidden;
+        }
+        .header-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        .header-btn:hover::before { left: 100%; }
+        .header-btn:hover {
+            background-color: var(--secondary-color); transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+        }
+        .theme-toggle {
+            background-color: var(--card-bg); color: var(--text-color);
+            border: 1px solid var(--border-color); display: flex; align-items: center;
+            justify-content: center; font-size: 1.1rem; padding: 0.6rem 0.9rem;
+        }
+        .theme-toggle:hover {
+            background-color: var(--border-color); color: var(--primary-color);
+            box-shadow: 0 0 12px var(--glow-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative; padding: 100px 0 80px; text-align: center; color: white;
+            overflow: hidden;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://t4.ftcdn.net/jpg/02/92/20/37/360_F_292203735_CSsyqyS6A4Z9Czd4Msf7qZEhoxjpzZl1.jpg') no-repeat center center/cover;
+            margin-bottom: 40px; animation: heroFadeIn 1.5s ease-out;
+        }
+        @keyframes heroFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation: subtleGlow 20s linear infinite; z-index: 0;
+        }
+        @keyframes subtleGlow { 0% { transform: scale(1) rotate(0deg); opacity: 0.5; } 50% { transform: scale(1.2) rotate(180deg); opacity: 0.7; } 100% { transform: scale(1) rotate(360deg); opacity: 0.5; } }
+        .hero .container { position: relative; z-index: 1; }
+        .hero h2 {
+            font-family: 'Playfair Display', serif; font-size: 3.2rem; margin-bottom: 15px;
+            text-shadow: 0 0 15px var(--glow-color); letter-spacing: 1.5px; line-height: 1.2;
+            animation: textRise 1s ease-out;
+        }
+        @keyframes textRise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .hero p {
+            font-size: 1.2rem; max-width: 750px; margin: 0 auto 30px auto; color: #ccc;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5); animation: textFadeIn 1.2s ease-out 0.3s forwards; opacity: 0;
+        }
+        @keyframes textFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .hero-buttons button {
+            margin: 0 1rem; padding: 0.9rem 2.2rem; border: none; background: var(--primary-color);
+            color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4); transition: all 0.4s ease; text-transform: uppercase;
+            letter-spacing: 0.8px; position: relative; overflow: hidden;
+            animation: buttonPop 0.8s ease-out 0.6s forwards; opacity: 0; transform: scale(0.9);
+        }
+        @keyframes buttonPop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .hero-buttons button:hover {
+            background-color: var(--secondary-color); transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+        }
+        .hero-buttons button::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        .hero-buttons button:hover::before { left: 100%; }
+
+        /* General Section Styling */
+        section { padding: 60px 0; position: relative; z-index: 1; }
+        section h2.section-title { /* More specific selector */
+            font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center;
+            margin-bottom: 50px; color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.3); position: relative; padding-bottom: 15px;
+        }
+        section h2.section-title::after {
+            content: ''; position: absolute; width: 80px; height: 3px;
+            background: linear-gradient(to right, transparent, var(--secondary-color), transparent);
+            bottom: 0; left: 50%; transform: translateX(-50%); border-radius: 2px;
+        }
+
+        /* Features Section - Flip Effect */
+        .features-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; justify-items: center; max-width: 1200px; margin: 0 auto;
+        }
+        .feature-box {
+            background-color: transparent; border-radius: 15px; width: 100%;
+            max-width: 320px; min-height: 380px; text-align: center;
+            transition: transform 0.4s ease, box-shadow 0.4s ease; position: relative;
+            cursor: pointer; perspective: 1000px;
+        }
+        .feature-box-inner {
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d; box-shadow: var(--card-shadow); border-radius: 15px;
+        }
+        .feature-box:hover .feature-box-inner { transform: rotateY(180deg); }
+        .feature-box:hover { transform: translateY(-8px); }
+        .feature-box-front, .feature-box-back {
+            position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden;
+            backface-visibility: hidden; display: flex; flex-direction: column;
+            justify-content: flex-start; align-items: center; background-color: var(--card-bg);
+            border: 1px solid var(--border-color); border-radius: 15px; padding: 20px; overflow: hidden;
+        }
+        .feature-box-back { transform: rotateY(180deg); }
+        .feature-box .feature-image {
+            width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 12px;
+        }
+        .feature-box h3 {
+            font-size: 1.3rem; margin-bottom: 8px; color: var(--primary-color); letter-spacing: 0.5px;
+        }
+        .feature-box-front .question, .feature-box-back .answer {
+            font-size: 0.95rem; color: var(--text-color); line-height: 1.5; flex-grow: 1;
+            display: flex; align-items: center; text-align: center;
+        }
+        .light-mode .feature-box-front .question, .light-mode .feature-box-back .answer { color: #555; }
+
+        /* How It Works Section - Updated Layout */
+        .how-it-works .steps {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            justify-content: center; /* Center items when they wrap */
+            gap: 30px;
+            align-items: stretch; /* Make cards same height if they wrap */
+        }
+        .how-it-works .step {
+            background: var(--card-bg); padding: 25px; border-radius: 15px;
+            flex: 1 1 280px; /* Flex properties for responsiveness */
+            max-width: 300px; /* Max width for each card */
+            box-shadow: var(--card-shadow); text-align: center;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            border: 1px solid var(--border-color); position: relative;
+            display: flex; flex-direction: column; /* For consistent content alignment */
+        }
+        .how-it-works .step:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); border-color: var(--secondary-color);
+        }
+        .how-it-works .step .step-number {
+            background-color: var(--secondary-color); color: white; border-radius: 50%;
+            width: 50px; height: 50px; font-weight: bold; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3); transition: all 0.3s ease;
+            border: 2px solid white;
+        }
+        .how-it-works .step:hover .step-number {
+            background-color: #FFC107; box-shadow: 0 6px 18px rgba(245, 166, 35, 0.5); transform: scale(1.1);
+        }
+        .how-it-works .step h4 {
+            font-size: 1.2rem; color: var(--primary-color); margin-bottom: 10px; font-weight: 600;
+        }
+        .how-it-works .step p {
+            font-size: 1rem; color: var(--text-color); line-height: 1.6; flex-grow: 1; /* Pushes content down */
+        }
+        .light-mode .how-it-works .step p { color: #666; }
+
+
+        /* Images Section */
+        .images-section .images-grid { /* Renamed for clarity */
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 25px;
+        }
+        .images-section .images-grid img {
+            max-width: 420px; width: 100%; height: 280px; object-fit: cover; border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4); transition: transform 0.4s ease, box-shadow 0.4s ease;
+            border: 2px solid var(--border-color); filter: grayscale(0.1);
+        }
+        .images-section .images-grid img:hover {
+            transform: scale(1.04) rotate(1deg); box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+            border-color: var(--primary-color); filter: grayscale(0);
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--footer-bg); color: var(--footer-text);
+            padding: 3rem 0 1.5rem; margin-top: 50px;
+            box-shadow: inset 0 8px 15px rgba(0,0,0,0.3);
+        }
+        .footer-columns {
+            display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 1.5rem;
+            justify-content: space-between;
+        }
+        .footer-column { flex: 1; min-width: 250px; padding: 0 10px; }
+        .footer-column h4 {
+            margin-bottom: 1.2rem; font-size: 1.3rem; color: var(--primary-color);
+            position: relative; padding-bottom: 8px; letter-spacing: 0.5px;
+        }
+        .footer-column h4::after {
+            content: ''; position: absolute; width: 50px; height: 2px;
+            background-color: var(--secondary-color); bottom: 0; left: 0;
+        }
+        .footer-column p, .footer-column a { font-size: 0.95rem; color: var(--footer-text); line-height: 1.7; }
+        .footer-column a {
+            display: block; text-decoration: none; margin-bottom: 0.7rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .footer-column a:hover { color: var(--secondary-color); transform: translateX(4px); }
+        .footer-bottom {
+            text-align: center; padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem;
+            color: #999; margin-top: 25px;
+        }
+        .light-mode .footer-column p, .light-mode .footer-column a { color: #555; }
+        .light-mode .footer-bottom { color: #777; border-top: 1px solid rgba(0, 0, 0, 0.1); }
+
+        /* Chatbot Styles (Copied from original, ensure variables are used) */
+        .chatbot-toggle-btn {
+            position: fixed; bottom: 20px; right: 20px; background-color: var(--primary-color);
+            color: #fff; border: none; border-radius: 50%; width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.8em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); cursor: pointer; z-index: 1001;
+            transition: transform 0.2s ease-in-out, background-color 0.3s ease;
+        }
+        .chatbot-toggle-btn:hover { transform: scale(1.05); background-color: var(--secondary-color); }
+        .chatbot-window {
+            position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px;
+            background: var(--card-bg); border-radius: 15px; box-shadow: var(--card-shadow);
+            display: flex; flex-direction: column; overflow: hidden; z-index: 1000;
+            transform: scale(0); transform-origin: bottom right;
+            transition: transform 0.3s ease-in-out; border: 1px solid var(--border-color);
+        }
+        .chatbot-window.active { transform: scale(1); }
+        .chatbot-header {
+            background: var(--header-bg); padding: 15px; color: var(--text-color);
+            border-bottom: 1px solid var(--border-color); display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .chatbot-header h2 { margin: 0; font-size: 1.1em; font-family: 'Playfair Display', serif; color: var(--primary-color); }
+        .chatbot-close-btn, .speech-toggle-btn {
+            background: none; border: none; color: var(--text-color); font-size: 1.2em;
+            cursor: pointer; padding: 5px; transition: color 0.3s ease;
+        }
+        .speech-toggle-btn { margin-right: 10px; }
+        .chatbot-close-btn:hover, .speech-toggle-btn:hover { color: var(--primary-color); }
+        .chatbot-messages {
+            flex-grow: 1; padding: 15px; overflow-y: auto; display: flex;
+            flex-direction: column; gap: 10px; scroll-behavior: smooth;
+        }
+        .chatbot-message {
+            max-width: 80%; padding: 10px 15px; border-radius: 18px; line-height: 1.4;
+            font-size: 0.9em; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chatbot-message.user {
+            align-self: flex-end; background-color: var(--primary-color); color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+        .chatbot-message.ai {
+            align-self: flex-start; background-color: var(--card-bg); color: var(--text-color);
+            border: 1px solid var(--border-color); border-bottom-left-radius: 2px;
+        }
+        .chatbot-input-area {
+            display: flex; padding: 15px; border-top: 1px solid var(--border-color);
+            background: var(--header-bg);
+        }
+        .chatbot-input-area input {
+            flex-grow: 1; padding: 10px 15px; border: 1px solid var(--border-color);
+            border-radius: 20px; background-color: var(--bg-color); color: var(--text-color);
+            font-size: 0.9em; margin-right: 10px; outline: none;
+        }
+        .chatbot-input-area input::placeholder { color: var(--placeholder-text-dark); }
+        .light-mode .chatbot-input-area input::placeholder { color: var(--placeholder-text-light); }
+        .chatbot-input-area button {
+            background-color: var(--primary-color); color: #fff; border: none;
+            border-radius: 50%; width: 40px; height: 40px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.1em; cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .chatbot-input-area button:hover { background-color: var(--secondary-color); }
+
+        /* Modal Styles */
+        .modal {
+            display: none; position: fixed; z-index: 1050; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: var(--modal-overlay-bg);
+            align-items: center; justify-content: center;
+        }
+        .modal.active { display: flex; } /* Use flex to center */
+        .modal-content {
+            background-color: var(--modal-content-bg-dark); color: var(--text-color);
+            padding: 25px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            width: 90%; max-width: 420px; position: relative;
+            animation: modalOpen 0.3s ease-out;
+        }
+        @keyframes modalOpen { from { opacity: 0; transform: scale(0.9) translateY(-20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .light-mode .modal-content { background-color: #fff; color: #333; }
+        .modal-close-btn {
+            position: absolute; top: 10px; right: 15px; font-size: 1.8rem;
+            font-weight: bold; color: var(--text-color); cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .light-mode .modal-close-btn { color: #888; }
+        .modal-close-btn:hover { color: var(--primary-color); }
+        .modal-header { text-align: center; margin-bottom: 20px; }
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif; color: var(--primary-color);
+            font-size: 1.8rem; margin: 0;
+        }
+        .modal-tabs { display: flex; margin-bottom: 20px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-color); }
+        .modal-tab-btn {
+            flex: 1; padding: 12px; background-color: transparent; border: none;
+            color: var(--text-color); cursor: pointer; font-weight: 600; font-size: 0.95rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .light-mode .modal-tab-btn { color: #555; border-color: #ddd; }
+        .modal-tab-btn.active { background-color: var(--primary-color); color: white; }
+        .light-mode .modal-tab-btn.active { color: white; } /* Ensure contrast */
+        .modal-tab-btn:not(.active):hover { background-color: rgba(255,255,255,0.1); }
+        .light-mode .modal-tab-btn:not(.active):hover { background-color: #f0f0f0; }
+
+        .modal-form-content { display: none; }
+        .modal-form-content.active { display: block; }
+        .modal-input-group { margin-bottom: 18px; }
+        .modal-input-group label {
+            display: block; font-size: 0.9rem; font-weight: 500;
+            margin-bottom: 6px; color: var(--text-color);
+        }
+        .light-mode .modal-input-group label { color: #444; }
+        .modal-input-group input {
+            width: 100%; padding: 12px; border-radius: 6px;
+            border: 1px solid var(--input-border-dark); background-color: var(--input-bg-dark);
+            color: var(--text-color); font-size: 1rem;
+        }
+        .light-mode .modal-input-group input {
+            border-color: #ccc; background-color: #f9f9f9; color: #333;
+        }
+        .modal-input-group input::placeholder { color: var(--placeholder-text-dark); }
+        .light-mode .modal-input-group input::placeholder { color: var(--placeholder-text-light); }
+
+        .modal-submit-btn {
+            width: 100%; padding: 12px; background-color: var(--primary-color);
+            color: white; border: none; border-radius: 6px; cursor: pointer;
+            font-weight: 600; font-size: 1rem; text-transform: uppercase;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .modal-submit-btn:hover { background-color: var(--secondary-color); transform: translateY(-2px); }
+        .modal-error-message {
+            color: #ff6b6b; background-color: rgba(255, 107, 107, 0.1);
+            padding: 10px; border-radius: 5px; text-align: center;
+            font-size: 0.9rem; margin-top: 10px; display: none;
+        }
+        .social-login-divider {
+            display: flex; align-items: center; text-align: center;
+            color: var(--text-color); font-size: 0.85rem; margin: 20px 0;
+        }
+        .light-mode .social-login-divider { color: #777; }
+        .social-login-divider::before, .social-login-divider::after {
+            content: ''; flex: 1; border-bottom: 1px solid var(--border-color);
+        }
+        .light-mode .social-login-divider::before, .light-mode .social-login-divider::after { border-bottom-color: #ddd; }
+        .social-login-divider:not(:empty)::before { margin-right: .5em; }
+        .social-login-divider:not(:empty)::after { margin-left: .5em; }
+        .social-login-buttons .custom-social-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; padding: 10px; border-radius: 6px;
+            border: 1px solid var(--border-color); background-color: transparent;
+            color: var(--text-color); cursor: pointer; font-size: 0.9rem;
+            margin-bottom: 10px; transition: background-color 0.3s, border-color 0.3s;
+        }
+        .light-mode .social-login-buttons .custom-social-btn { border-color: #ddd; color: #444; }
+        .social-login-buttons .custom-social-btn i { margin-right: 10px; font-size: 1.2rem; }
+        .social-login-buttons .btn-google-custom:hover { background-color: rgba(219, 68, 55, 0.1); border-color: #DB4437; color: #DB4437; }
+        .social-login-buttons .btn-facebook-custom:hover { background-color: rgba(66, 103, 178, 0.1); border-color: #4267B2; color: #4267B2; }
+        .light-mode .social-login-buttons .btn-google-custom:hover { color: #DB4437; }
+        .light-mode .social-login-buttons .btn-facebook-custom:hover { color: #4267B2; }
+
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .header-content { flex-direction: column; text-align: center; gap: 10px; }
+            .logo { margin-bottom: 0.8rem; justify-content: center; }
+            .nav-links {
+                display: none; width: 100%; flex-direction: column; align-items: center;
+                gap: 0.8rem; margin-top: 0.8rem; background-color: var(--header-bg); padding: 10px 0;
+            }
+            .nav-links.active { display: flex; }
+            .mobile-menu-btn { display: block; position: absolute; top: 1.2rem; right: 1.5rem; }
+            .auth-buttons { margin-top: 0.8rem; justify-content: center; }
+            .hero h2 { font-size: 2.8rem; } .hero p { font-size: 1.1rem; }
+            .hero-buttons button { padding: 0.8rem 1.8rem; font-size: 1rem; margin: 0.6rem; }
+            .features-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+            .how-it-works .steps { gap: 20px; }
+            .how-it-works .step { flex-basis: calc(50% - 10px); max-width: calc(50% - 10px); } /* 2 cards per row */
+            .footer-columns { flex-direction: column; align-items: center; text-align: center; }
+            .footer-column h4::after { left: 50%; transform: translateX(-50%); }
+        }
+        @media (max-width: 576px) {
+            .hero h2 { font-size: 2.2rem; } .hero p { font-size: 1rem; }
+            .hero-buttons button { font-size: 0.9rem; padding: 0.7rem 1.5rem; }
+            .logo h1 { font-size: 1.5rem; }
+            .header-btn, .theme-toggle { padding: 0.5rem 1rem; font-size: 0.8rem; }
+            section h2.section-title { font-size: 2rem; }
+            .feature-box, .how-it-works .step { padding: 18px; min-height: auto; flex-basis: 100%; max-width: 100%;}
+            .feature-box h3 { font-size: 1.2rem; }
+            .feature-box .feature-image { height: 120px; }
+            .feature-box-front .question, .feature-box-back .answer { font-size: 0.9rem; }
+            .chatbot-window { width: calc(100% - 30px); right: 15px; left: 15px; bottom: 70px; height: 60vh; }
+            .chatbot-toggle-btn { width: 50px; height: 50px; font-size: 1.5em; bottom: 10px; right: 10px; }
+            .modal-content { width: 95%; padding: 20px; }
+            .modal-header h2 { font-size: 1.6rem; }
+            .modal-tab-btn { font-size: 0.9rem; padding: 10px; }
+            .modal-input-group input { padding: 10px; font-size: 0.95rem; }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="https://media.licdn.com/dms/image/v2/C4D0BAQES1BSiZDSKRg/company-logo_200_200/company-logo_200_200/0/1642422410138/d_y_patil_college_of_engineering__technology_kasaba_bawada_logo?e=2147483647&v=beta&t=M3dkm6QQGxgV_Ny_4TljMxG8L3IXWauB3jObNJOm1Rs" alt="DYP College Logo">
+                    <i class="fas fa-utensils" style="color: var(--primary-color); font-size: 1.8rem; margin-left: 10px; margin-right: 10px; vertical-align: middle;"></i>
+                    <h1>Campus Canteen</h1>
+                </div>
+
+                <button class="mobile-menu-btn" aria-label="Toggle Navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <ul class="nav-links">
+                    <li><a href="Homepage.html" class="active">Home</a></li>
+                    <li><a href="Newmenue1.html">Explore Menu</a></li>
+                    <li><a href="about-us.html">About Us</a></li>
+                    <li><a href="userprofile.html">My Profile</a></li>
+                    <li><a href="#" id="adminAuthBtnNav">Admin</a></li>
+                </ul>
+
+                <div class="auth-buttons">
+                    <button class="header-btn" id="userAuthBtn">Join / Login</button>
+                    <button class="theme-toggle" aria-label="Toggle Theme" id="themeToggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <section class="hero">
+            <div class="container">
+                <h2>Campus Canteen: Where Flavor Reigns</h2>
+                <p>Experience culinary delight tailored for campus life. Our kitchen crafts exquisite meals, ensuring every bite is a symphony of taste and efficiency.</p>
+                <div class="hero-buttons">
+                    <button onclick="location.href='Newmenue1.html'">Explore Our Offerings</button>
+                    <button onclick="location.href='about-us.html'">Discover Our Vision</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Our Features</h2>
+                <div class="features-grid">
+                    <div class="feature-box">
+                        <div class="feature-box-inner">
+                            <div class="feature-box-front">
+                                <img src="https://placehold.co/320x180/FFCDD2/B71C1C?text=Long+Queues" alt="Long Queues - Front" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Long Queues & Wait Times</h3>
+                                <p class="question">Tired of standing in endless lines during peak hours?</p>
+                            </div>
+                            <div class="feature-box-back">
+                                <img src="https://placehold.co/320x180/C8E6C9/2E7D32?text=Contactless+Order" alt="Contactless Ordering - Back" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Queue-Free</h3>
+                                <p class="answer">Our smart ordering system eliminates wait times. Order ahead and skip the queue entirely!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-box-inner">
+                            <div class="feature-box-front">
+                                <img src="https://placehold.co/320x180/FFCDD2/B71C1C?text=Limited+Menu" alt="Limited Menu - Front" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Limited Menu Options</h3>
+                                <p class="question">Bored with the same old campus food choices?</p>
+                            </div>
+                            <div class="feature-box-back">
+                                <img src="https://placehold.co/320x180/C8E6C9/2E7D32?text=Diverse+Cuisine" alt="Diverse Cuisine - Back" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Diverse Offerings</h3>
+                                <p class="answer">We offer diverse cuisines with daily specials, healthy options, and customizable meals to suit every taste!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-box-inner">
+                            <div class="feature-box-front">
+                                <img src="https://placehold.co/320x180/FFCDD2/B71C1C?text=Cash+Only" alt="Cash Only - Front" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Cash-Only Transactions</h3>
+                                <p class="question">Always running out of cash or forgetting your wallet?</p>
+                            </div>
+                            <div class="feature-box-back">
+                                <img src="https://placehold.co/320x180/C8E6C9/2E7D32?text=Digital+Payments" alt="Digital Payments - Back" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Seamless Transactions</h3>
+                                <p class="answer">Multiple payment options including digital wallets, UPI, cards, and campus ID integration for seamless transactions!</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="feature-box">
+                        <div class="feature-box-inner">
+                            <div class="feature-box-front">
+                                <img src="https://placehold.co/320x180/FFCDD2/B71C1C?text=No+Info" alt="No Information - Front" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Lack of Information</h3>
+                                <p class="question">Never know what's available or when it'll be ready?</p>
+                            </div>
+                            <div class="feature-box-back">
+                                <img src="https://placehold.co/320x180/C8E6C9/2E7D32?text=Real-Time+Data" alt="Real-Time Updates - Back" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Smart Display</h3>
+                                <p class="answer">Real-time menu updates, ingredient info, preparation times, and live order tracking keep you informed!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-box-inner">
+                            <div class="feature-box-front">
+                                <img src="https://placehold.co/320x180/FFCDD2/B71C1C?text=Crowded+Space" alt="Crowded Space - Front" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Crowded Dining Space</h3>
+                                <p class="question">Struggling to find a place to sit during lunch rush?</p>
+                            </div>
+                            <div class="feature-box-back">
+                                <img src="https://placehold.co/320x180/C8E6C9/2E7D32?text=Table+Reservation" alt="Table Reservation - Back" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Smart Dining</h3>
+                                <p class="answer">Table reservation system and takeaway options ensure you always have a comfortable dining experience!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-box-inner">
+                            <div class="feature-box-front">
+                                <img src="https://placehold.co/320x180/FFCDD2/B71C1C?text=Inconsistent+Quality" alt="Inconsistent Quality - Front" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Inconsistent Quality</h3>
+                                <p class="question">Food quality varies from day to day?</p>
+                            </div>
+                            <div class="feature-box-back">
+                                <img src="https://placehold.co/320x180/C8E6C9/2E7D32?text=Quality+Control" alt="Quality Control - Back" class="feature-image" onerror="this.src='https://placehold.co/320x180/EEEEEE/BDBDBD?text=Image+Error';">
+                                <h3>Consistent Quality</h3>
+                                <p class="answer">Standardized recipes, quality control measures, and feedback system ensure consistent, delicious meals every time!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works">    
+            <div class="container">
+                <h2 class="section-title">How Our Smart Canteen Works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h4>Browse & Select</h4>
+                        <p>Explore our digital menu with real-time availability, prices, and detailed descriptions. Filter by dietary preferences and see nutritional information.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h4>Customize & Order</h4>
+                        <p>Personalize your meal with add-ons, specify preferences, and place your order. Choose pickup time or dine-in table reservation.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h4>Pay Seamlessly</h4>
+                        <p>Multiple payment options including campus card, UPI, digital wallets, or cards. No more fumbling for cash or exact change.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h4>Track & Collect</h4>
+                        <p>Real-time preparation updates sent to your phone. Get notified when your order is ready for pickup or served at your table.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="images-section"> <div class="container">
+                <h2 class="section-title">Campus Dining Experience</h2>
+                <div class="images-grid"> <img src="Canteenimg3.jpg" alt="Modern Campus Canteen Interior" onerror="this.src='https://placehold.co/420x280/EEEEEE/BDBDBD?text=Canteen+View';">
+                    <img src="Canteenimg2.jpg" alt="Delicious Campus Food" onerror="this.src='https://placehold.co/420x280/EEEEEE/BDBDBD?text=Tasty+Food';">
+                    <img src="Canteenimg1.jpg" alt="Students Enjoying Meals" onerror="this.src='https://placehold.co/420x280/EEEEEE/BDBDBD?text=Happy+Students';">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> DYP College of Engg. & Tech., Kasba Bawda, Kolhapur</p>
+                    <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                    <p><i class="fas fa-envelope"></i> canteen@dypcollege.edu</p>
+                    <p><i class="fas fa-clock"></i> Mon-Sat: 8:00 AM - 6:00 PM</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <a href="Newmenue1.html">Menu</a>
+                    <a href="Ordertracking1.html">Track Order</a>
+                    <a href="about-us.html">About Us</a>
+                    <a href="userprofile.html">My Account</a>
+                    <a href="feedback.html">Feedback</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Follow Us</h4>
+                    <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+                    <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+                    <a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Services</h4>
+                    <a href="#">Online Ordering</a>
+                    <a href="#">Table Reservation</a>
+                    <a href="#">Catering Services</a>
+                    <a href="#">Meal Plans</a>
+                    <a href="#">Nutritional Info</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="currentYear"></span> DYP College Campus Canteen. All rights reserved. | Designed with <i class="fas fa-heart" style="color: var(--primary-color);"></i> for students</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="userAuthModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn" id="closeUserAuthModal">&times;</span>
+            <div class="modal-header">
+                <h2>Welcome!</h2>
+            </div>
+            <div class="modal-tabs">
+                <button class="modal-tab-btn active" data-form="loginUserForm">Login</button>
+                <button class="modal-tab-btn" data-form="registerUserForm">Register</button>
+            </div>
+
+            <form id="loginUserForm" class="modal-form-content active">
+                <div class="modal-input-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="modal-input-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="modal-submit-btn">
+                    
+                </button>
+                <p class="modal-error-message" id="loginUserError"></p>
+                <div class="social-login-divider">or login with</div>
+                <div class="social-login-buttons">
+                     <div id="g_id_onload_user_login"
+                         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                         data-login_uri=""
+                         data-callback="handleCredentialResponseUserLogin"
+                         data-auto_prompt="false">
+                    </div>
+                    <button type="button" class="custom-social-btn btn-google-custom" id="googleSignInBtnUser">
+                        <i class="fab fa-google"></i> Continue with Google
+                    </button>
+                    <button type="button" class="custom-social-btn btn-facebook-custom">
+                        <i class="fab fa-facebook-f"></i> Continue with Facebook
+                    </button>
+                </div>
+            </form>
+
+            <form id="registerUserForm" class="modal-form-content">
+                <div class="modal-input-group">
+                    <label for="registerFullName">Full Name</label>
+                    <input type="text" id="registerFullName" placeholder="Enter your full name" required>
+                </div>
+                <div class="modal-input-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="modal-input-group">
+                    <label for="registerMobile">Mobile Number</label>
+                    <input type="tel" id="registerMobile" placeholder="Enter 10-digit mobile" required>
+                </div>
+                <div class="modal-input-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" placeholder="Create a password" required>
+                </div>
+                <div class="modal-input-group">
+                    <label for="registerConfirmPassword">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required>
+                </div>
+                <button type="submit" class="modal-submit-btn">Register</button>
+                <p class="modal-error-message" id="registerUserError"></p>
+                 <div class="social-login-divider">or register with</div>
+                <div class="social-login-buttons">
+                     <div id="g_id_onload_user_register"
+                         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                         data-login_uri=""
+                         data-callback="handleCredentialResponseUserRegister"
+                         data-auto_prompt="false">
+                    </div>
+                    <button type="button" class="custom-social-btn btn-google-custom" id="googleSignUpBtnUser">
+                        <i class="fab fa-google"></i> Sign up with Google
+                    </button>
+                    <button type="button" class="custom-social-btn btn-facebook-custom">
+                        <i class="fab fa-facebook-f"></i> Sign up with Facebook
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminAuthModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn" id="closeAdminAuthModal">&times;</span>
+            <div class="modal-header">3
+                <h2>Admin Login</h2>
+            </div>
+            <form id="loginAdminForm" class="modal-form-content active"> <div class="modal-input-group">
+                    <label for="adminUsername">Username</label>
+                    <input type="text" id="adminUsername" placeholder="Enter admin username" required>
+                </div>
+                <div class="modal-input-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="modal-submit-btn">Login as Admin</button>
+                <p class="modal-error-message" id="loginAdminError"></p>
+            </form>
+        </div>
+    </div>
+
+
+    <button id="chatbotToggleBtn" class="chatbot-toggle-btn">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+    <div id="chatbotWindow" class="chatbot-window">
+        <div class="chatbot-header">
+            <h2>Campus Canteen AI</h2>
+            <div>
+                <button id="speechToggleBtn" class="speech-toggle-btn" aria-label="Toggle Speech">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button id="chatbotCloseBtn" class="chatbot-close-btn" aria-label="Close Chatbot">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div id="chatbotMessages" class="chatbot-messages"></div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbotInput" placeholder="Ask me anything..." aria-label="Chatbot Input">
+            <button id="chatbotSendBtn" aria-label="Send Message"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const currentYearSpan = document.getElementById('currentYear');
+
+        const userAuthBtn = document.getElementById('userAuthBtn');
+        const adminAuthBtnNav = document.getElementById('adminAuthBtnNav');
+        const userAuthModal = document.getElementById('userAuthModal');
+        const adminAuthModal = document.getElementById('adminAuthModal');
+        const closeUserAuthModalBtn = document.getElementById('closeUserAuthModal');
+        const closeAdminAuthModalBtn = document.getElementById('closeAdminAuthModal');
+        const userModalTabs = userAuthModal.querySelectorAll('.modal-tab-btn');
+        const userModalForms = userAuthModal.querySelectorAll('.modal-form-content');
+        const loginUserForm = document.getElementById('loginUserForm');
+        const registerUserForm = document.getElementById('registerUserForm');
+        const loginAdminForm = document.getElementById('loginAdminForm');
+        const googleSignInBtnUser = document.getElementById('googleSignInBtnUser');
+        const googleSignUpBtnUser = document.getElementById('googleSignUpBtnUser');
+
+
+        // --- Initial Setup ---
+        if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
+
+        // --- Theme Toggle ---
+        if (themeToggle && body) {
+            const themeIcon = themeToggle.querySelector('i');
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                body.classList.add('light-mode');
+                if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
+            } else {
+                if (themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); }
+            }
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('light-mode');
+                if (themeIcon) {
+                    if (body.classList.contains('light-mode')) {
+                        themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                }
+            });
+        }
+
+        // --- Mobile Menu ---
+        if (mobileMenuBtn && navLinks) {
+            mobileMenuBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+                const icon = mobileMenuBtn.querySelector('i');
+                if (icon) { icon.classList.toggle('fa-bars'); icon.classList.toggle('fa-times'); }
+            });
+        }
+
+        // --- Header Scroll Effect ---
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (header) {
+                if (window.scrollY > 50) header.classList.add('header-scrolled');
+                else header.classList.remove('header-scrolled');
+            }
+        });
+
+        // --- Smooth Scroll for Anchors ---
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId.length > 1) {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // --- Animation on Scroll ---
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        document.querySelectorAll('.feature-box, .step, section h2.section-title').forEach(el => {
+            el.style.opacity = '0'; el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        // --- Modal Handling ---
+        function openModal(modal) { if (modal) modal.classList.add('active'); }
+        function closeModal(modal) { if (modal) modal.classList.remove('active'); }
+
+        if (userAuthBtn && userAuthModal) userAuthBtn.addEventListener('click', () => openModal(userAuthModal));
+        if (adminAuthBtnNav && adminAuthModal) adminAuthBtnNav.addEventListener('click', (e) => { e.preventDefault(); openModal(adminAuthModal);});
+        if (closeUserAuthModalBtn && userAuthModal) closeUserAuthModalBtn.addEventListener('click', () => closeModal(userAuthModal));
+        if (closeAdminAuthModalBtn && adminAuthModal) closeAdminAuthModalBtn.addEventListener('click', () => closeModal(adminAuthModal));
+
+        window.addEventListener('click', (event) => {
+            if (event.target === userAuthModal) closeModal(userAuthModal);
+            if (event.target === adminAuthModal) closeModal(adminAuthModal);
+        });
+
+        // User Auth Modal Tabs
+        if (userModalTabs && userModalForms) {
+            userModalTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    userModalTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const formId = tab.dataset.form;
+                    userModalForms.forEach(form => {
+                        if (form.id === formId) form.classList.add('active');
+                        else form.classList.remove('active');
+                    });
+                    // Clear previous error messages
+                    document.getElementById('loginUserError').textContent = '';
+                    document.getElementById('loginUserError').style.display = 'none';
+                    document.getElementById('registerUserError').textContent = '';
+                    document.getElementById('registerUserError').style.display = 'none';
+                });
+            });
+        }
+
+        // --- User Authentication Logic (LocalStorage Based) ---
+        const USERS_STORAGE_KEY = 'campusCanteenUsers';
+        function getUsers() { return JSON.parse(localStorage.getItem(USERS_STORAGE_KEY)) || []; }
+        function saveUsers(users) { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users)); }
+        function showUserAuthError(formType, message) {
+            const errorEl = document.getElementById(`${formType}UserError`);
+            if (errorEl) { errorEl.textContent = message; errorEl.style.display = 'block'; }
+        }
+
+        if (registerUserForm) {
+            registerUserForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const fullName = document.getElementById('registerFullName').value.trim();
+                const email = document.getElementById('registerEmail').value.trim().toLowerCase();
+                const mobile = document.getElementById('registerMobile').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('registerConfirmPassword').value;
+                const errorEl = document.getElementById('registerUserError');
+                errorEl.textContent = ''; errorEl.style.display = 'none';
+
+                if (!fullName || !email || !mobile || !password || !confirmPassword) { return showUserAuthError('register', 'Please fill in all fields.'); }
+                if (password !== confirmPassword) { return showUserAuthError('register', 'Passwords do not match.'); }
+                if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) { return showUserAuthError('register', 'Invalid email format.'); }
+                if (!/^\d{10}$/.test(mobile)) { return showUserAuthError('register', 'Mobile number must be 10 digits.'); }
+
+                const users = getUsers();
+                if (users.find(user => user.email === email)) { return showUserAuthError('register', 'Email already registered.'); }
+
+                users.push({ fullName, email, mobile, password }); // Store password directly for this demo
+                saveUsers(users);
+                alert('Registration successful! Please login.');
+                registerUserForm.reset();
+                userModalTabs[0].click(); // Switch to login tab
+                closeModal(userAuthModal);
+            });
+        }
+
+        if (loginUserForm) {
+            loginUserForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+                const password = document.getElementById('loginPassword').value;
+                const errorEl = document.getElementById('loginUserError');
+                errorEl.textContent = ''; errorEl.style.display = 'none';
+
+                if (!email || !password) { return showUserAuthError('login', 'Please enter email and password.'); }
+
+                const users = getUsers();
+                const user = users.find(u => u.email === email && u.password === password);
+
+                if (user) {
+                    alert(`Login successful! Welcome, ${user.fullName}.`);
+                    localStorage.setItem('loggedInUser', JSON.stringify({ email: user.email, fullName: user.fullName }));
+                    // Potentially update UI to show user's name, etc.
+                    closeModal(userAuthModal);
+                    // You might want to redirect or update UI here
+                    // window.location.href = 'Newmenue1.html'; // Example redirect
+                } else {
+                    showUserAuthError('login', 'Invalid email or password.');
+                }
+            });
+        }
+
+        // --- Admin Authentication Logic ---
+        if (loginAdminForm) {
+            // Initialize default admin credentials if not already set (for demo)
+            if (!localStorage.getItem('adminCredentials')) {
+                localStorage.setItem('adminCredentials', JSON.stringify({ username: 'admin', password: 'password123' }));
+            }
+
+            loginAdminForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('adminUsername').value;
+                const password = document.getElementById('adminPassword').value;
+                const errorEl = document.getElementById('loginAdminError');
+                errorEl.textContent = ''; errorEl.style.display = 'none';
+
+                const storedCredentials = JSON.parse(localStorage.getItem('adminCredentials'));
+
+                if (username === storedCredentials.username && password === storedCredentials.password) {
+                    localStorage.setItem('isAdminLoggedIn', 'true');
+                    alert('Admin login successful!');
+                    closeModal(adminAuthModal);
+                    window.location.href = 'Admin1.html';
+                } else {
+                    errorEl.textContent = 'Invalid admin username or password.';
+                    errorEl.style.display = 'block';
+                }
+            });
+        }
+
+        // --- Google Sign-In ---
+        // IMPORTANT: Replace YOUR_GOOGLE_CLIENT_ID with your actual Google Client ID in the HTML
+        function handleCredentialResponse(response, source) {
+            console.log(`Google Sign-In Response (${source}):`, response);
+            const idToken = response.credential;
+            // In a real app, send idToken to backend for verification & user handling.
+            // For demo:
+            // const decodedToken = JSON.parse(atob(idToken.split('.')[1])); // NOT secure for frontend
+            // const userName = decodedToken.name;
+            // const userEmail = decodedToken.email;
+            alert(`Successfully signed in/up with Google! (Simulated for ${source})`);
+            // localStorage.setItem('loggedInUser', JSON.stringify({ email: userEmail, fullName: userName, source: 'google' }));
+            closeModal(userAuthModal);
+            // window.location.href = 'Newmenue1.html';
+        }
+        function handleCredentialResponseUserLogin(response) { handleCredentialResponse(response, 'login'); }
+        function handleCredentialResponseUserRegister(response) { handleCredentialResponse(response, 'register'); }
+
+        if (googleSignInBtnUser) {
+            googleSignInBtnUser.addEventListener('click', () => {
+                if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+                    google.accounts.id.prompt();
+                } else { console.error("Google Accounts ID library not loaded for user login."); alert("Google Sign-In unavailable."); }
+            });
+        }
+        if (googleSignUpBtnUser) {
+             googleSignUpBtnUser.addEventListener('click', () => {
+                if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+                    google.accounts.id.prompt();
+                } else { console.error("Google Accounts ID library not loaded for user register."); alert("Google Sign-Up unavailable."); }
+            });
+        }
+
+
+        // --- Chatbot Logic (Copied from original, with minor adjustments for safety) ---
+        const chatbotToggleBtn = document.getElementById('chatbotToggleBtn');
+        const chatbotWindow = document.getElementById('chatbotWindow');
+        const chatbotCloseBtn = document.getElementById('chatbotCloseBtn');
+        const chatbotMessagesEl = document.getElementById('chatbotMessages'); // Renamed to avoid conflict
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSendBtn = document.getElementById('chatbotSendBtn');
+        const speechToggleBtn = document.getElementById('speechToggleBtn');
+
+        let speechEnabled = localStorage.getItem('chatbotSpeech') === 'true';
+        let availableVoices = [];
+
+        function populateVoices() {
+            if (typeof window.speechSynthesis === 'undefined') {
+                if(speechToggleBtn) speechToggleBtn.style.display = 'none'; return;
+            }
+            availableVoices = window.speechSynthesis.getVoices();
+        }
+        if (typeof window.speechSynthesis !== 'undefined') {
+            if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = populateVoices;
+            populateVoices(); setTimeout(populateVoices, 500);
+        } else { if(speechToggleBtn) speechToggleBtn.style.display = 'none'; }
+
+        if (chatbotToggleBtn) {
+            chatbotToggleBtn.addEventListener('click', () => {
+                chatbotWindow.classList.toggle('active');
+                if (chatbotWindow.classList.contains('active')) {
+                    chatbotInput.focus();
+                    if (chatbotMessagesEl && chatbotMessagesEl.children.length === 0) {
+                        appendChatMessage("Hello! How can I make your day delicious today? Ask me about our menu, a specific dish, or even for a joke!", 'ai', speechEnabled);
+                    }
+                }
+            });
+        }
+        if (chatbotCloseBtn) {
+            chatbotCloseBtn.addEventListener('click', () => {
+                chatbotWindow.classList.remove('active');
+                if (typeof window.speechSynthesis !== 'undefined') window.speechSynthesis.cancel();
+            });
+        }
+        if (chatbotSendBtn) chatbotSendBtn.addEventListener('click', sendChatMessage);
+        if (chatbotInput) chatbotInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
+
+        if (speechToggleBtn && typeof window.speechSynthesis !== 'undefined') {
+            const speechIcon = speechToggleBtn.querySelector('i');
+            if (speechIcon) {
+                if (speechEnabled) { speechIcon.classList.remove('fa-volume-mute'); speechIcon.classList.add('fa-volume-up'); }
+                else { speechIcon.classList.remove('fa-volume-up'); speechIcon.classList.add('fa-volume-mute'); }
+            }
+            speechToggleBtn.addEventListener('click', () => {
+                speechEnabled = !speechEnabled; localStorage.setItem('chatbotSpeech', speechEnabled);
+                if (speechIcon) {
+                    if (speechEnabled) {
+                        speechIcon.classList.replace('fa-volume-mute', 'fa-volume-up');
+                        appendChatMessage("Speech enabled! I will now speak my responses.", 'ai', true);
+                    } else {
+                        speechIcon.classList.replace('fa-volume-up', 'fa-volume-mute');
+                        window.speechSynthesis.cancel();
+                        appendChatMessage("Speech disabled. I will no longer speak.", 'ai', false);
+                    }
+                }
+            });
+        } else if (speechToggleBtn) { speechToggleBtn.style.display = 'none'; }
+
+        let gameActive = false; let mysteryFood = null; let hintsGiven = 0;
+        const menuData = [ /* ... (Full menuData from original script) ... */
+            // Burgers
+            { name: "Classic Veg Burger", keywords: ["classic veg burger", "veg burger"], price: 100, calories: 400, category: "Burgers", description: "Hearty veg patty, fresh lettuce, tomatoes, special sauce.", details: "Contains gluten, dairy, soy." },
+            { name: "Crispy Chicken Burger", keywords: ["crispy chicken burger", "chicken burger"], price: 150, calories: 550, category: "Burgers", description: "Crispy fried chicken, lettuce, tomatoes, tangy mayo.", details: "Contains gluten, dairy, eggs." },
+            { name: "Paneer Burger", keywords: ["paneer burger"], price: 130, calories: 500, category: "Burgers", description: "Grilled paneer patty, spices, fresh veggies, creamy sauce.", details: "Contains dairy, gluten." },
+            // Sandwiches
+            { name: "Classic Veg Sandwich", keywords: ["classic veg sandwich", "veg sandwich"], price: 80, calories: 300, category: "Sandwiches", description: "Fresh veggies, mint chutney, soft bread.", details: "Contains gluten, dairy." },
+            { name: "Paneer Tikka Sandwich", keywords: ["paneer tikka sandwich", "paneer sandwich"], price: 120, calories: 400, category: "Sandwiches", description: "Paneer tikka, bell peppers, onions, grilled.", details: "Contains dairy, gluten." },
+            // ... more menu items (pasta, pizza, snacks, salads, beverages, desserts)
+             { name: "Margherita Pizza", keywords: ["margherita pizza"], price: 250, calories: 350, per: "slice", category: "Pizza", description: "Tomato, mozzarella, basil.", details: "8 slices. Contains gluten, dairy." },
+             { name: "Classic Fries", keywords: ["classic fries", "fries"], price: 70, calories: 300, category: "Snacks", description: "Crispy, fluffy, salted.", details: "Deep-fried." },
+             { name: "Fresh Lime Soda", keywords: ["fresh lime soda"], price: 50, calories: 80, category: "Beverages", description: "Lime, sugar, soda.", details: "Vegan, gluten-free." },
+             { name: "Chocolate Brownie", keywords: ["chocolate brownie", "brownie"], price: 80, calories: 320, category: "Desserts", description: "Rich, fudgy, warm.", details: "Contains gluten, dairy, eggs." }
+        ];
+        const foodJokes = [ "Why did the tomato turn red? Because it saw the salad dressing!", "What do you call a fake noodle? An impasta!" ];
+
+        function sendChatMessage() {
+            if (!chatbotInput) return;
+            const userMessage = chatbotInput.value.trim();
+            if (userMessage === '') return;
+            appendChatMessage(userMessage, 'user');
+            chatbotInput.value = '';
+            setTimeout(() => {
+                const aiResponse = getAiChatResponse(userMessage); // Renamed to avoid conflict
+                appendChatMessage(aiResponse, 'ai', speechEnabled);
+            }, 800);
+        }
+
+        function appendChatMessage(text, sender, speak = false) {
+            if (!chatbotMessagesEl) return;
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chatbot-message', sender);
+            messageDiv.innerHTML = text;
+            chatbotMessagesEl.appendChild(messageDiv);
+            chatbotMessagesEl.scrollTop = chatbotMessagesEl.scrollHeight;
+            if (speak && sender === 'ai' && typeof window.speechSynthesis !== 'undefined' && window.speechSynthesis) {
+                let textToSpeak = text.replace(/<br\s*\/?>/gi, '. ').replace(/<[^>]*>?/gm, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/[^\w\s.,?!'\u2019]/gu, '');
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'en-US'; utterance.rate = 0.95; utterance.pitch = 1.0;
+                if (availableVoices && availableVoices.length > 0) {
+                    const preferredVoice = availableVoices.find(voice => voice.lang === 'en-US' && (voice.name.includes('Google US English') || voice.name.includes('Zira')));
+                    if (preferredVoice) utterance.voice = preferredVoice;
+                    else { const englishVoice = availableVoices.find(voice => voice.lang === 'en-US'); if(englishVoice) utterance.voice = englishVoice; }
+                }
+                window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
+            }
+        }
+        function findMenuItem(query) { /* ... (Full findMenuItem from original) ... */
+            const lowerCaseQuery = query.toLowerCase();
+            for (const item of menuData) if (item.name.toLowerCase() === lowerCaseQuery) return item;
+            for (const item of menuData) if (item.keywords && item.keywords.some(keyword => lowerCaseQuery.includes(keyword))) return item;
+            return null;
+        }
+        function findCategory(query) { /* ... (Full findCategory from original) ... */
+            const lowerCaseQuery = query.toLowerCase();
+            const categories = [...new Set(menuData.map(item => item.category.toLowerCase()))];
+            for (const category of categories) if (lowerCaseQuery.includes(category)) return category.charAt(0).toUpperCase() + category.slice(1);
+            return null;
+        }
+
+        function getAiChatResponse(message) { // Renamed
+            const lowerCaseMessage = message.toLowerCase();
+            if (gameActive) { /* ... (Game logic from original, ensure mysteryFood is defined before accessing its properties) ... */
+                 if (lowerCaseMessage === 'quit' || lowerCaseMessage === 'stop game') { gameActive = false; mysteryFood = null; hintsGiven = 0; return "Game over! Thanks for playing!"; }
+                 const userGuess = findMenuItem(lowerCaseMessage);
+                 if (mysteryFood && userGuess && userGuess.name.toLowerCase() === mysteryFood.name.toLowerCase()) { gameActive = false; mysteryFood = null; hintsGiven = 0; return `You got it! It was ${userGuess.name}! Play again?`; }
+                 else if (mysteryFood) {
+                    hintsGiven++;
+                    if (hintsGiven === 1) return `Nope! Hint: It's in ${mysteryFood.category}.`;
+                    if (hintsGiven === 2) return `Still not! Hint: Costs around ₹${mysteryFood.price}.`;
+                    if (hintsGiven === 3) return `Almost! Hint: Known for ${mysteryFood.description.split(' ')[0]}...`;
+                    const correctAnswer = mysteryFood.name; gameActive = false; mysteryFood = null; hintsGiven = 0; return `Oops! It was ${correctAnswer}. Play again?`;
+                 } else { gameActive = false; return "Game error. Say 'play game' to restart.";}
+            }
+            if (lowerCaseMessage.includes('play game')) { gameActive = true; mysteryFood = menuData[Math.floor(Math.random() * menuData.length)]; hintsGiven = 0; return "Let's play 'Guess the Food'! What am I thinking of?"; }
+            if (lowerCaseMessage.includes('joke')) return foodJokes[Math.floor(Math.random() * foodJokes.length)];
+            if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi')) return "Hello! Ask about our menu or tell me a joke!";
+            if (lowerCaseMessage.includes('menu')) { let cats = [...new Set(menuData.map(i => i.category))]; return `We offer: ${cats.join(', ')}. Ask about a category or item!`; }
+            const reqCategory = findCategory(lowerCaseMessage);
+            if (reqCategory) { const items = menuData.filter(i => i.category === reqCategory).map(i => i.name); return `In ${reqCategory}, we have: ${items.join(', ')}. More details?`; }
+            const item = findMenuItem(lowerCaseMessage);
+            if (item) {
+                let resp = `**${item.name}**: ${item.description} Costs ₹${item.price}. Calories: ${item.calories}. ${item.details || ''}`;
+                if (lowerCaseMessage.includes('calorie')) resp = `${item.name} has ${item.calories} calories.`;
+                if (lowerCaseMessage.includes('cost') || lowerCaseMessage.includes('price')) resp = `${item.name} costs ₹${item.price}.`;
+                if (lowerCaseMessage.includes('ingredients') || lowerCaseMessage.includes('details')) resp = `${item.name} details: ${item.description} ${item.details || ''}`;
+                return resp;
+            }
+            if (lowerCaseMessage.includes('hours') || lowerCaseMessage.includes('open')) return "We're open Mon-Sat, 8 AM - 8 PM.";
+            return "Sorry, I'm not sure about that. Try asking about the 'menu', a specific 'dish', or for a 'joke'.";
+        }
+    </script>
+</body>
+</html>
